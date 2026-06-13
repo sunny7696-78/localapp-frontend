@@ -1,60 +1,13 @@
-import axios from 'axios';
-
-const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
-});
-
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-export const authAPI = {
-  register: (data) => API.post('/auth/register', data),
-  login: (data) => API.post('/auth/login', data),
-  me: () => API.get('/auth/me'),
-  updateProfile: (data) => API.put('/auth/profile', data),
-};
-
-export const productAPI = {
-  getAll: (params) => API.get('/products', { params }),
-  getOne: (id) => API.get(`/products/${id}`),
-  create: (data) => API.post('/products', data),
-  update: (id, data) => API.put(`/products/${id}`, data),
-  delete: (id) => API.delete(`/products/${id}`),
-};
-
-export const restaurantAPI = {
-  getAll: (params) => API.get('/restaurants', { params }),
-  getOne: (id) => API.get(`/restaurants/${id}`),
-  create: (data) => API.post('/restaurants', data),
-  addMenuItem: (id, data) => API.post(`/restaurants/${id}/menu`, data),
-};
-
-export const orderAPI = {
-  place: (data) => API.post('/orders', data),
-  myOrders: () => API.get('/orders/my'),
-  getOne: (id) => API.get(`/orders/${id}`),
-  updateStatus: (id, status) => API.put(`/orders/${id}/status`, { status }),
-  cancel: (id) => API.put(`/orders/${id}/cancel`),
-  available: () => API.get('/orders/available'),
-};
-
-export const rideAPI = {
-  book: (data) => API.post('/rides', data),
-  myRides: () => API.get('/rides/my'),
-  available: (params) => API.get('/rides/available', { params }),
-  accept: (id) => API.put(`/rides/${id}/accept`),
-  updateStatus: (id, status) => API.put(`/rides/${id}/status`, { status }),
-  rate: (id, data) => API.put(`/rides/${id}/rate`, data),
-};
-
-export const adminAPI = {
-  stats: () => API.get('/admin/stats'),
-  users: (params) => API.get('/admin/users', { params }),
-  orders: () => API.get('/admin/orders'),
-  toggleUser: (id) => API.put(`/admin/users/${id}/toggle`),
-};
-
+﻿import axios from 'axios';
+const API = axios.create({ baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api' });
+API.interceptors.request.use((config) => { const token = localStorage.getItem('token'); if (token) config.headers.Authorization = 'Bearer ' + token; return config; });
+export const authAPI = { register: (data) => API.post('/auth/register', data), login: (data) => API.post('/auth/login', data), me: () => API.get('/auth/me'), updateProfile: (data) => API.put('/auth/profile', data) };
+export const productAPI = { getAll: (params) => API.get('/products', { params }), getOne: (id) => API.get('/products/'+id), create: (data) => API.post('/products', data), update: (id, data) => API.put('/products/'+id, data), delete: (id) => API.delete('/products/'+id) };
+export const restaurantAPI = { getAll: (params) => API.get('/restaurants', { params }), getOne: (id) => API.get('/restaurants/'+id), create: (data) => API.post('/restaurants', data), addMenuItem: (id, data) => API.post('/restaurants/'+id+'/menu', data) };
+export const orderAPI = { place: (data) => API.post('/orders', data), myOrders: () => API.get('/orders/my'), getOne: (id) => API.get('/orders/'+id), updateStatus: (id, status) => API.put('/orders/'+id+'/status', { status }), cancel: (id) => API.put('/orders/'+id+'/cancel'), available: () => API.get('/orders/available') };
+export const rideAPI = { book: (data) => API.post('/rides', data), myRides: () => API.get('/rides/my'), available: (params) => API.get('/rides/available', { params }), accept: (id) => API.put('/rides/'+id+'/accept'), updateStatus: (id, status) => API.put('/rides/'+id+'/status', { status }), rate: (id, data) => API.put('/rides/'+id+'/rate', data) };
+export const reviewAPI = { create: (data) => API.post('/reviews', data), getForTarget: (type, id) => API.get('/reviews/'+type+'/'+id) };
+export const notificationAPI = { getAll: () => API.get('/notifications'), readAll: () => API.put('/notifications/read-all'), readOne: (id) => API.put('/notifications/'+id+'/read') };
+export const shopAPI = { getAll: (params) => API.get('/shops', { params }), getMy: () => API.get('/shops/my'), create: (data) => API.post('/shops', data), update: (data) => API.put('/shops/my', data), toggle: () => API.put('/shops/my/toggle') };
+export const adminAPI = { stats: () => API.get('/admin/stats'), users: (params) => API.get('/admin/users', { params }), orders: () => API.get('/admin/orders'), toggleUser: (id) => API.put('/admin/users/'+id+'/toggle') };
 export default API;
