@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../utils/api';
 import toast from 'react-hot-toast';
 
-const AREAS = ['Civil Lines', 'Model Town', 'Sarabha Nagar', 'Dugri', 'BRS Nagar', 'Gurdev Nagar', 'Focal Point', 'Jamalpur', 'Shaheed Bhagat Singh Nagar', 'Other'];
+const AREAS = ['Civil Lines','Model Town','Sarabha Nagar','Dugri','BRS Nagar','Gurdev Nagar','Focal Point','Jamalpur','Shaheed Bhagat Singh Nagar','Other'];
 
 const Profile = () => {
   const { user, logout } = useAuth();
@@ -13,25 +13,32 @@ const Profile = () => {
   const [form, setForm] = useState({ name: user?.name || '', email: user?.email || '', address: { street: user?.address?.street || '', area: user?.address?.area || 'Civil Lines', city: 'Ludhiana' } });
 
   const handleSave = async () => {
-    try {
-      await authAPI.updateProfile(form);
-      toast.success('Profile updated!');
-      setEditing(false);
-    } catch { toast.success('Updated (Demo)'); setEditing(false); }
+    try { await authAPI.updateProfile(form); toast.success('Profile updated!'); setEditing(false); }
+    catch { toast.success('Updated (Demo)'); setEditing(false); }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-    toast.success('Logged out');
-  };
+  const handleLogout = () => { logout(); navigate('/login'); toast.success('Logged out'); };
+
+  const menuItems = [
+    { icon: '📦', label: 'My Orders', path: '/orders' },
+    { icon: '🏍️', label: 'My Rides', path: '/ride' },
+    { icon: '📍', label: 'Saved Addresses', path: '/addresses' },
+    { icon: '💰', label: 'Wallet & Points', path: '/wallet' },
+    { icon: '👥', label: 'Refer & Earn', path: '/referral' },
+    { icon: '🔔', label: 'Notifications', path: '/notifications' },
+    ...(user?.role === 'driver' ? [{ icon: '💵', label: 'My Earnings', path: '/earnings' }] : []),
+    ...(user?.role === 'vendor' ? [{ icon: '🏪', label: 'My Shop', path: '/shop' }] : []),
+    ...(user?.role === 'admin' ? [{ icon: '🎟️', label: 'Promo Codes', path: '/promos' }, { icon: '⚙️', label: 'Admin Panel', path: '/admin' }] : []),
+  ];
 
   return (
     <div className="page" style={{ maxWidth: 560, margin: '0 auto' }}>
       <h1 className="page-title">👤 My Profile</h1>
+
+      {/* Profile Card */}
       <div className="card card-body" style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1.8rem', fontWeight: 800 }}>
+          <div style={{ width: 70, height: 70, borderRadius: '50%', background: 'linear-gradient(135deg,var(--primary),#ff8c42)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '2rem', fontWeight: 800 }}>
             {user?.name?.charAt(0).toUpperCase()}
           </div>
           <div>
@@ -49,24 +56,14 @@ const Profile = () => {
                 <span style={{ fontWeight: 600 }}>{f.value}</span>
               </div>
             ))}
-            <button className="btn btn-outline btn-block" style={{ marginTop: 16 }} onClick={() => setEditing(true)}>Edit Profile</button>
+            <button className="btn btn-outline btn-block" style={{ marginTop: 16 }} onClick={() => setEditing(true)}>✏️ Edit Profile</button>
           </>
         ) : (
           <>
-            <div className="form-group">
-              <label className="form-label">Name</label>
-              <input className="form-input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Email</label>
-              <input className="form-input" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Street / House No.</label>
-              <input className="form-input" value={form.address.street} onChange={e => setForm({ ...form, address: { ...form.address, street: e.target.value } })} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Area</label>
+            <div className="form-group"><label className="form-label">Name</label><input className="form-input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
+            <div className="form-group"><label className="form-label">Email</label><input className="form-input" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></div>
+            <div className="form-group"><label className="form-label">Street</label><input className="form-input" value={form.address.street} onChange={e => setForm({ ...form, address: { ...form.address, street: e.target.value } })} /></div>
+            <div className="form-group"><label className="form-label">Area</label>
               <select className="form-input form-select" value={form.address.area} onChange={e => setForm({ ...form, address: { ...form.address, area: e.target.value } })}>
                 {AREAS.map(a => <option key={a}>{a}</option>)}
               </select>
@@ -79,19 +76,18 @@ const Profile = () => {
         )}
       </div>
 
-      <div className="card card-body">
-        <h3 style={{ marginBottom: 12 }}>Quick Links</h3>
-        {[
-          { label: '📦 My Orders', action: () => navigate('/orders') },
-          { label: '🏍️ My Rides', action: () => navigate('/ride') },
-        ].map(l => (
-          <div key={l.label} onClick={l.action}
-            style={{ padding: '12px 0', borderBottom: '1px solid var(--border)', cursor: 'pointer', color: 'var(--primary)', fontWeight: 600, fontSize: '0.9rem' }}>
-            {l.label} →
+      {/* Quick Links */}
+      <div className="card card-body" style={{ marginBottom: 16 }}>
+        {menuItems.map(item => (
+          <div key={item.path} onClick={() => navigate(item.path)}
+            style={{ padding: '14px 0', borderBottom: '1px solid var(--border)', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.95rem' }}>
+            <span>{item.icon} {item.label}</span>
+            <span style={{ color: 'var(--muted)' }}>›</span>
           </div>
         ))}
-        <button className="btn btn-red btn-block" style={{ marginTop: 16 }} onClick={handleLogout}>Logout</button>
       </div>
+
+      <button className="btn btn-red btn-block" onClick={handleLogout}>🚪 Logout</button>
     </div>
   );
 };
