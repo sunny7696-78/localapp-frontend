@@ -144,6 +144,11 @@ const OrderTracking = () => {
             </div>
             <a href={`tel:${order.driver.phone}`} className="btn btn-primary btn-sm">📞 Call</a>
           </div>
+          {['accepted', 'preparing', 'picked_up'].includes(order.status) && (
+            <button className="btn btn-outline btn-block" style={{ marginTop: 12 }} onClick={() => navigate('/track/' + order._id)}>
+              🗺️ Live Map Pe Dekho
+            </button>
+          )}
         </div>
       )}
 
