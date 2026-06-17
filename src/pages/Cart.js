@@ -43,7 +43,7 @@ const Cart = () => {
   const grandTotal = total - discount + deliveryFee;
 
   const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${grandTotal}&cu=INR&tn=${encodeURIComponent('LocalApp Order')}`;
-  const qrUrl = `https://chart.googleapis.com/chart?cht=qr&chs=260x260&chl=${encodeURIComponent(upiLink)}&choe=UTF-8`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiLink)}`;
 
   const applyPromo = async () => {
     if (!promoCode) { toast.error('Promo code daalo'); return; }
