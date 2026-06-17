@@ -25,6 +25,11 @@ import SavedAddresses from './pages/SavedAddresses';
 import EarningsDriver from './pages/EarningsDriver';
 import Referral from './pages/Referral';
 import PromoAdmin from './pages/PromoAdmin';
+import Chat from './pages/Chat';
+import Analytics from './pages/Analytics';
+import LiveTracking from './pages/LiveTracking';
+import ScheduleOrder from './pages/ScheduleOrder';
+import Search from './pages/Search';
 import './index.css';
 
 const PrivateRoute = ({ children }) => {
@@ -51,13 +56,17 @@ const AppRoutes = () => {
       <Route path="/" element={<HomeComponent />} />
       <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
       <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+      <Route path="/search" element={<Search />} />
       <Route path="/grocery" element={<PrivateRoute><Grocery /></PrivateRoute>} />
       <Route path="/food" element={<PrivateRoute><Food /></PrivateRoute>} />
       <Route path="/food/:id" element={<PrivateRoute><RestaurantDetail /></PrivateRoute>} />
       <Route path="/cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
       <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
       <Route path="/orders/:id" element={<PrivateRoute><OrderTracking /></PrivateRoute>} />
+      <Route path="/track/:orderId" element={<PrivateRoute><LiveTracking /></PrivateRoute>} />
       <Route path="/ride" element={<PrivateRoute><RideMap /></PrivateRoute>} />
+      <Route path="/schedule" element={<PrivateRoute><ScheduleOrder /></PrivateRoute>} />
+      <Route path="/chat/:roomId" element={<PrivateRoute><Chat /></PrivateRoute>} />
       <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
       <Route path="/wallet" element={<PrivateRoute><Wallet /></PrivateRoute>} />
@@ -68,6 +77,7 @@ const AppRoutes = () => {
       <Route path="/vendor" element={<PrivateRoute><VendorDashboard /></PrivateRoute>} />
       <Route path="/shop" element={<PrivateRoute><ShopSetup /></PrivateRoute>} />
       <Route path="/promos" element={<AdminRoute><PromoAdmin /></AdminRoute>} />
+      <Route path="/analytics" element={<AdminRoute><Analytics /></AdminRoute>} />
       <Route path="/admin/*" element={<AdminRoute><Admin /></AdminRoute>} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes></>

@@ -1,13 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pa">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <meta name="theme-color" content="#FF6B00" />
-    <title>LocalApp — Your Neighbourhood Super App</title>
+    <meta name="description" content="Doraha ka super app - Kirana delivery, Food delivery, Bike & Auto rides" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="LocalApp" />
+    <meta property="og:title" content="LocalApp Doraha" />
+    <meta property="og:description" content="Doraha ka super app - Kirana, Food, Rides" />
+    <meta property="og:type" content="website" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/icon.svg" />
+    <title>LocalApp — Doraha Ka Super App</title>
+    <style>
+      body { margin: 0; -webkit-tap-highlight-color: transparent; }
+      #splash { position:fixed;inset:0;background:#1a1a2e;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.5s; }
+      #splash h1 { color:#FF6B00;font-size:2.5rem;font-weight:900;margin:16px 0 4px;font-family:system-ui; }
+      #splash p { color:#aaa;font-size:0.9rem; }
+    </style>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="splash">
+      <div style="font-size:4rem">🏪</div>
+      <h1>LocalApp</h1>
+      <p>📍 Doraha, Ludhiana</p>
+    </div>
+    <noscript>JavaScript enable karo!</noscript>
     <div id="root"></div>
+    <script>
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          const s = document.getElementById('splash');
+          if (s) { s.style.opacity = '0'; setTimeout(() => s.remove(), 500); }
+        }, 1500);
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
+      });
+    </script>
   </body>
 </html>
