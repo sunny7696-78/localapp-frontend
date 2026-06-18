@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { orderAPI } from '../utils/api';
+import { useLanguage } from '../context/LanguageContext';
 
 const STATUS_STEPS = ['pending', 'accepted', 'preparing', 'picked_up', 'delivered'];
 const STATUS_LABELS = { pending: '⏳ Pending', accepted: '✅ Accepted', preparing: '👨‍🍳 Preparing', picked_up: '🏍️ On the Way', delivered: '📦 Delivered', cancelled: '❌ Cancelled' };
@@ -15,6 +16,7 @@ const Orders = () => {
   const [orders, setOrders] = useState(DEMO_ORDERS);
   const [selected, setSelected] = useState(null);
   const navigate = useNavigate();
+  const { t: tr } = useLanguage();
 
   useEffect(() => {
     orderAPI.myOrders().then(res => { if (res.data.length > 0) setOrders(res.data); }).catch(() => {});
@@ -35,7 +37,7 @@ const Orders = () => {
     const stepIdx = STATUS_STEPS.indexOf(o.status);
     return (
       <div className="page">
-        <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', fontWeight: 600, marginBottom: 16 }}>← Back to Orders</button>
+        <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', fontWeight: 600, marginBottom: 16 }}>← {tr('back')} {tr('orders')}</button>
         <div className="card card-body">
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
             <div>
@@ -88,12 +90,12 @@ const Orders = () => {
 
   return (
     <div className="page">
-      <h1 className="page-title">📦 My Orders</h1>
+      <h1 className="page-title">📦 {tr('myOrders')}</h1>
       {orders.length === 0 ? (
         <div className="empty">
           <div className="empty-icon">📦</div>
-          <h3>No orders yet</h3>
-          <button className="btn btn-primary" onClick={() => navigate('/')}>Start Ordering</button>
+          <h3>{tr('noOrdersYet')}</h3>
+          <button className="btn btn-primary" onClick={() => navigate('/')}>{tr('startOrdering')}</button>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

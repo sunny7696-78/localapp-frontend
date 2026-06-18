@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../utils/api';
+import { ALL_DORAHA_AREAS, APP_CITY } from '../constants/doraha';
+import { useLanguage } from '../context/LanguageContext';
 import toast from 'react-hot-toast';
 
-const AREAS = ['Civil Lines','Model Town','Sarabha Nagar','Dugri','BRS Nagar','Gurdev Nagar','Focal Point','Jamalpur','Shaheed Bhagat Singh Nagar','Other'];
+const AREAS = ALL_DORAHA_AREAS;
 
 const Profile = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t: tr } = useLanguage();
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ name: user?.name || '', email: user?.email || '', address: { street: user?.address?.street || '', area: user?.address?.area || 'Civil Lines', city: 'Ludhiana' } });
+  const [form, setForm] = useState({ name: user?.name || '', email: user?.email || '', address: { street: user?.address?.street || '', area: user?.address?.area || APP_CITY + ' Mandi', city: APP_CITY } });
 
   const handleSave = async () => {
     try { await authAPI.updateProfile(form); toast.success('Profile updated!'); setEditing(false); }
@@ -20,12 +23,12 @@ const Profile = () => {
   const handleLogout = () => { logout(); navigate('/login'); toast.success('Logged out'); };
 
   const menuItems = [
-    { icon: '📦', label: 'My Orders', path: '/orders' },
-    { icon: '🏍️', label: 'My Rides', path: '/ride' },
+    { icon: '📦', label: tr('myOrders'), path: '/orders' },
+    { icon: '🏍️', label: tr('bookARide'), path: '/ride' },
     { icon: '📍', label: 'Saved Addresses', path: '/addresses' },
-    { icon: '💰', label: 'Wallet & Points', path: '/wallet' },
-    { icon: '👥', label: 'Refer & Earn', path: '/referral' },
-    { icon: '🔔', label: 'Notifications', path: '/notifications' },
+    { icon: '💰', label: tr('myWallet'), path: '/wallet' },
+    { icon: '👥', label: tr('referAndEarn'), path: '/referral' },
+    { icon: '🔔', label: tr('notifications'), path: '/notifications' },
     ...(user?.role === 'driver' ? [{ icon: '💵', label: 'My Earnings', path: '/earnings' }] : []),
     ...(user?.role === 'vendor' ? [{ icon: '🏪', label: 'My Shop', path: '/shop' }] : []),
     ...(user?.role === 'admin' ? [{ icon: '🎟️', label: 'Promo Codes', path: '/promos' }, { icon: '⚙️', label: 'Admin Panel', path: '/admin' }] : []),
@@ -33,7 +36,7 @@ const Profile = () => {
 
   return (
     <div className="page" style={{ maxWidth: 560, margin: '0 auto' }}>
-      <h1 className="page-title">👤 My Profile</h1>
+      <h1 className="page-title">👤 {tr('myProfile')}</h1>
 
       {/* Profile Card */}
       <div className="card card-body" style={{ marginBottom: 16 }}>
@@ -50,27 +53,27 @@ const Profile = () => {
 
         {!editing ? (
           <>
-            {[{ label: 'Name', value: user?.name }, { label: 'Phone', value: user?.phone }, { label: 'Email', value: user?.email || 'Not set' }, { label: 'Area', value: user?.address?.area || 'Not set' }, { label: 'City', value: 'Ludhiana' }].map(f => (
+            {[{ label: tr('name'), value: user?.name }, { label: tr('phone'), value: user?.phone }, { label: tr('email'), value: user?.email || tr('notSet') }, { label: tr('area'), value: user?.address?.area || tr('notSet') }, { label: 'City', value: APP_CITY }].map(f => (
               <div key={f.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border)', fontSize: '0.9rem' }}>
                 <span style={{ color: 'var(--muted)' }}>{f.label}</span>
                 <span style={{ fontWeight: 600 }}>{f.value}</span>
               </div>
             ))}
-            <button className="btn btn-outline btn-block" style={{ marginTop: 16 }} onClick={() => setEditing(true)}>✏️ Edit Profile</button>
+            <button className="btn btn-outline btn-block" style={{ marginTop: 16 }} onClick={() => setEditing(true)}>✏️ {tr('editProfile')}</button>
           </>
         ) : (
           <>
-            <div className="form-group"><label className="form-label">Name</label><input className="form-input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
-            <div className="form-group"><label className="form-label">Email</label><input className="form-input" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></div>
+            <div className="form-group"><label className="form-label">{tr('name')}</label><input className="form-input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
+            <div className="form-group"><label className="form-label">{tr('email')}</label><input className="form-input" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></div>
             <div className="form-group"><label className="form-label">Street</label><input className="form-input" value={form.address.street} onChange={e => setForm({ ...form, address: { ...form.address, street: e.target.value } })} /></div>
-            <div className="form-group"><label className="form-label">Area</label>
+            <div className="form-group"><label className="form-label">{tr('area')}</label>
               <select className="form-input form-select" value={form.address.area} onChange={e => setForm({ ...form, address: { ...form.address, area: e.target.value } })}>
                 {AREAS.map(a => <option key={a}>{a}</option>)}
               </select>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button className="btn btn-primary" style={{ flex: 1 }} onClick={handleSave}>Save</button>
-              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setEditing(false)}>Cancel</button>
+              <button className="btn btn-primary" style={{ flex: 1 }} onClick={handleSave}>{tr('save')}</button>
+              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setEditing(false)}>{tr('cancel')}</button>
             </div>
           </>
         )}
@@ -87,7 +90,7 @@ const Profile = () => {
         ))}
       </div>
 
-      <button className="btn btn-red btn-block" onClick={handleLogout}>🚪 Logout</button>
+      <button className="btn btn-red btn-block" onClick={handleLogout}>🚪 {tr('logout')}</button>
     </div>
   );
 };

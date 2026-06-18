@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productAPI } from '../utils/api';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import toast from 'react-hot-toast';
 
 const CATEGORIES = [
@@ -43,6 +44,7 @@ const Grocery = () => {
   const [search, setSearch] = useState('');
   const { cartItems, addToCart, removeFromCart, itemCount, total } = useCart();
   const navigate = useNavigate();
+  const { t: tr } = useLanguage();
 
   useEffect(() => {
     productAPI.getAll({ category, search }).then(res => {
@@ -62,8 +64,8 @@ const Grocery = () => {
   return (
     <div className="page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h1 className="page-title" style={{ marginBottom: 0 }}>🛒 Doraha Kirana</h1>
-        <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>📍 Doraha delivery</span>
+        <h1 className="page-title" style={{ marginBottom: 0 }}>🛒 {tr('dorahaGrocery')}</h1>
+        <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>📍 {tr('dorahaAndNearby')}</span>
       </div>
 
       {/* Free delivery banner */}
@@ -71,7 +73,7 @@ const Grocery = () => {
         🎉 ₹299 se upar FREE delivery! Abhi ₹{Math.max(0, 299 - total)} aur add karo
       </div>
 
-      <input className="form-input" placeholder="🔍 Saman dhundho..." value={search}
+      <input className="form-input" placeholder={'🔍 ' + tr('searchProduct')} value={search}
         onChange={e => setSearch(e.target.value)} style={{ marginBottom: 14, background: 'white' }} />
 
       {/* Category pills */}
@@ -107,7 +109,7 @@ const Grocery = () => {
                     {p.mrp && p.mrp > p.price && <span className="product-mrp">₹{p.mrp}</span>}
                   </div>
                   {qty === 0 ? (
-                    <button className="btn btn-primary btn-sm" onClick={() => { addToCart(p, 'grocery'); toast.success('Cart mein add!'); }}>+ Add</button>
+                    <button className="btn btn-primary btn-sm" onClick={() => { addToCart(p, 'grocery'); toast.success('Cart mein add!'); }}>+ {tr('add')}</button>
                   ) : (
                     <div className="qty-control">
                       <button className="qty-btn" onClick={() => removeFromCart(p._id)}>−</button>
@@ -125,8 +127,8 @@ const Grocery = () => {
       {filtered.length === 0 && (
         <div className="empty">
           <div className="empty-icon">🔍</div>
-          <h3>Koi product nahi mila</h3>
-          <p>Dusra search try karo</p>
+          <h3>{tr('noProductFound')}</h3>
+          <p>{tr('tryDifferentSearch')}</p>
         </div>
       )}
 

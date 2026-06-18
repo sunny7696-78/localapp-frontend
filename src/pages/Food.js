@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { restaurantAPI } from '../utils/api';
+import { useLanguage } from '../context/LanguageContext';
 
 const DEMO_RESTAURANTS = [
   { _id: 'r1', name: 'Doraha Dhaba', cuisine: ['Punjabi', 'Dal Makhani', 'Roti'], deliveryTime: '25-35 min', deliveryFee: 20, rating: 4.6, isOpen: true, image: '🍛', area: 'Doraha Mandi' },
@@ -18,6 +19,7 @@ const Food = () => {
   const [search, setSearch] = useState('');
   const [cuisine, setCuisine] = useState('All');
   const navigate = useNavigate();
+  const { t: tr } = useLanguage();
 
   useEffect(() => {
     restaurantAPI.getAll().then(r => { if (r.data.length > 0) setRestaurants(r.data); }).catch(() => {});
@@ -32,11 +34,11 @@ const Food = () => {
   return (
     <div className="page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h1 className="page-title" style={{ marginBottom: 0 }}>🍔 Doraha Restaurants</h1>
-        <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>📍 Doraha & aas paas</span>
+        <h1 className="page-title" style={{ marginBottom: 0 }}>🍔 {tr('dorahaRestaurants')}</h1>
+        <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>📍 {tr('dorahaAndNearby')}</span>
       </div>
 
-      <input className="form-input" placeholder="🔍 Restaurant ya khana dhundho..."
+      <input className="form-input" placeholder={'🔍 ' + tr('searchRestaurant')}
         value={search} onChange={e => setSearch(e.target.value)} style={{ marginBottom: 14, background: 'white' }} />
 
       {/* Cuisine Filter */}
@@ -57,7 +59,7 @@ const Food = () => {
               {r.image}
               {!r.isOpen && (
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ color: 'white', fontWeight: 700, fontSize: '0.9rem' }}>Abhi Band Hai</span>
+                  <span style={{ color: 'white', fontWeight: 700, fontSize: '0.9rem' }}>{tr('currentlyClosed')}</span>
                 </div>
               )}
             </div>
@@ -71,7 +73,7 @@ const Food = () => {
               <div style={{ display: 'flex', gap: 10, fontSize: '0.78rem', color: 'var(--muted)' }}>
                 <span>🕐 {r.deliveryTime}</span>
                 <span>🛵 ₹{r.deliveryFee}</span>
-                <span className={`badge ${r.isOpen ? 'badge-green' : 'badge-red'}`} style={{ fontSize: '0.68rem' }}>{r.isOpen ? 'Open' : 'Closed'}</span>
+                <span className={`badge ${r.isOpen ? 'badge-green' : 'badge-red'}`} style={{ fontSize: '0.68rem' }}>{r.isOpen ? tr('open') : tr('closed')}</span>
               </div>
             </div>
           </div>
@@ -81,8 +83,8 @@ const Food = () => {
       {filtered.length === 0 && (
         <div className="empty">
           <div className="empty-icon">🍽️</div>
-          <h3>Koi restaurant nahi mila</h3>
-          <p>Dusra search try karo</p>
+          <h3>{tr('noRestaurantFound')}</h3>
+          <p>{tr('tryDifferentSearch')}</p>
         </div>
       )}
     </div>

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { notificationAPI } from '../utils/api';
+import { useLanguage } from '../context/LanguageContext';
 
 const DEMO_NOTIFS = [
   { _id:'n1', title:'Order Delivered!', message:'Your grocery order #A1B2C3 has been delivered.', type:'order', isRead:false, createdAt: new Date(Date.now()-3600000).toISOString() },
   { _id:'n2', title:'Driver Assigned', message:'Harpreet Singh will deliver your order.', type:'order', isRead:false, createdAt: new Date(Date.now()-7200000).toISOString() },
   { _id:'n3', title:'🎉 Special Offer!', message:'Get 20% off on all dairy products today!', type:'promo', isRead:true, createdAt: new Date(Date.now()-86400000).toISOString() },
-  { _id:'n4', title:'Ride Completed', message:'Your ride to Sarabha Nagar was completed. Fare: ₹85', type:'ride', isRead:true, createdAt: new Date(Date.now()-172800000).toISOString() },
+  { _id:'n4', title:'Ride Completed', message:'Your ride to Doraha Mandi was completed. Fare: ₹85', type:'ride', isRead:true, createdAt: new Date(Date.now()-172800000).toISOString() },
 ];
 
 const TYPE_ICON = { order:'📦', ride:'🏍️', promo:'🎉', system:'🔔' };
@@ -14,6 +15,7 @@ const TYPE_COLOR = { order:'badge-blue', ride:'badge-orange', promo:'badge-green
 const Notifications = () => {
   const [notifs, setNotifs] = useState(DEMO_NOTIFS);
   const [unread, setUnread] = useState(2);
+  const { t } = useLanguage();
 
   useEffect(() => {
     notificationAPI.getAll().then(r => { setNotifs(r.data.notifications); setUnread(r.data.unread); }).catch(()=>{});
@@ -43,12 +45,12 @@ const Notifications = () => {
   return (
     <div className="page" style={{maxWidth:600,margin:'0 auto'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
-        <h1 className="page-title" style={{marginBottom:0}}>🔔 Notifications {unread>0&&<span className="cart-badge" style={{fontSize:'0.8rem',width:22,height:22}}>{unread}</span>}</h1>
-        {unread>0 && <button className="btn btn-outline btn-sm" onClick={markAllRead}>Mark all read</button>}
+        <h1 className="page-title" style={{marginBottom:0}}>🔔 {t('notifications')} {unread>0&&<span className="cart-badge" style={{fontSize:'0.8rem',width:22,height:22}}>{unread}</span>}</h1>
+        {unread>0 && <button className="btn btn-outline btn-sm" onClick={markAllRead}>{t('markAllRead')}</button>}
       </div>
 
       {notifs.length===0 ? (
-        <div className="empty"><div className="empty-icon">🔔</div><h3>No notifications yet</h3></div>
+        <div className="empty"><div className="empty-icon">🔔</div><h3>{t('noNotifications')}</h3></div>
       ) : (
         <div style={{display:'flex',flexDirection:'column',gap:8}}>
           {notifs.map(n=>(
