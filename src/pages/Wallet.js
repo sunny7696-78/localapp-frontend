@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '../context/LanguageContext';
 
 const DEMO_WALLET = {
   balance: 250,
@@ -17,7 +16,6 @@ const Wallet = () => {
   const [wallet, setWallet] = useState(DEMO_WALLET);
   const [tab, setTab] = useState('overview');
   const navigate = useNavigate();
-  const { t: tr } = useLanguage();
 
   useEffect(() => {
     fetch('/api/wallet', { headers: { Authorization: 'Bearer ' + localStorage.getItem('token') } })
@@ -28,31 +26,31 @@ const Wallet = () => {
 
   return (
     <div className="page" style={{ maxWidth: 600, margin: '0 auto' }}>
-      <h1 className="page-title">💰 {tr('myWallet')}</h1>
+      <h1 className="page-title">💰 My Wallet</h1>
 
       {/* Balance Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
         <div style={{ background: 'linear-gradient(135deg,var(--primary),#ff8c42)', borderRadius: 16, padding: 24, color: 'white' }}>
-          <div style={{ fontSize: '0.85rem', opacity: 0.9, marginBottom: 8 }}>{tr('walletBalance')}</div>
+          <div style={{ fontSize: '0.85rem', opacity: 0.9, marginBottom: 8 }}>Wallet Balance</div>
           <div style={{ fontSize: '2rem', fontWeight: 800 }}>₹{wallet.balance}</div>
-          <div style={{ fontSize: '0.78rem', opacity: 0.8, marginTop: 8 }}>{tr('useAtCheckout')}</div>
+          <div style={{ fontSize: '0.78rem', opacity: 0.8, marginTop: 8 }}>Use at checkout</div>
         </div>
         <div style={{ background: 'linear-gradient(135deg,#7c3aed,#a855f7)', borderRadius: 16, padding: 24, color: 'white' }}>
-          <div style={{ fontSize: '0.85rem', opacity: 0.9, marginBottom: 8 }}>{tr('loyaltyPoints')}</div>
+          <div style={{ fontSize: '0.85rem', opacity: 0.9, marginBottom: 8 }}>Loyalty Points</div>
           <div style={{ fontSize: '2rem', fontWeight: 800 }}>{wallet.loyaltyPoints}</div>
-          <div style={{ fontSize: '0.78rem', opacity: 0.8, marginTop: 8 }}>{tr('worth')} ₹{pointsValue}</div>
+          <div style={{ fontSize: '0.78rem', opacity: 0.8, marginTop: 8 }}>Worth ₹{pointsValue}</div>
         </div>
       </div>
 
       {/* How to earn */}
       <div className="card card-body" style={{ marginBottom: 20 }}>
-        <h3 style={{ marginBottom: 12 }}>🎯 {tr('earnMorePoints')}</h3>
+        <h3 style={{ marginBottom: 12 }}>🎯 Earn More Points</h3>
         {[
-          { icon: '🛒', action: tr('everyGroceryOrder'), points: tr('ptsPer100') },
-          { icon: '🍔', action: tr('everyFoodOrder'), points: '15 ' + tr('ptsPer100Short') },
-          { icon: '🏍️', action: tr('everyRide'), points: tr('ptsPerRide') },
-          { icon: '👥', action: tr('referFriend'), points: '100 ' + tr('pts') },
-          { icon: '⭐', action: tr('giveReview'), points: '10 ' + tr('pts') },
+          { icon: '🛒', action: 'Every grocery order', points: '10 pts per ₹100' },
+          { icon: '🍔', action: 'Every food order', points: '15 pts per ₹100' },
+          { icon: '🏍️', action: 'Every ride', points: '20 pts per ride' },
+          { icon: '👥', action: 'Refer a friend', points: '100 pts' },
+          { icon: '⭐', action: 'Give review', points: '10 pts' },
         ].map(e => (
           <div key={e.action} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border)', fontSize: '0.88rem' }}>
             <span>{e.icon} {e.action}</span>
@@ -63,9 +61,9 @@ const Wallet = () => {
 
       {/* Transactions */}
       <div className="card card-body">
-        <h3 style={{ marginBottom: 16 }}>📋 {tr('transactionHistory')}</h3>
+        <h3 style={{ marginBottom: 16 }}>📋 Transaction History</h3>
         {wallet.transactions?.length === 0 ? (
-          <div className="empty"><div className="empty-icon">📋</div><h3>{tr('noTransactions')}</h3></div>
+          <div className="empty"><div className="empty-icon">📋</div><h3>No transactions yet</h3></div>
         ) : (
           wallet.transactions?.map((t, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>

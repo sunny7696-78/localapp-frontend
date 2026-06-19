@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { adminAPI, productAPI } from '../utils/api';
 import toast from 'react-hot-toast';
 
-const DEMO_STATS = { users: 142, orders: 87, rides: 53, products: 34, restaurants: 6, revenue: 18450, commission: { total: 1850, byType: { food: 950, grocery: 480, ride: 420 } } };
+const DEMO_STATS = { users: 142, orders: 87, rides: 53, products: 34, restaurants: 6, revenue: 18450 };
 
 const Admin = () => {
   const [tab, setTab] = useState('dashboard');
@@ -63,34 +63,6 @@ const Admin = () => {
               <StatCard icon="🛒" label="Products" value={stats.products} />
               <StatCard icon="🍽️" label="Restaurants" value={stats.restaurants} />
               <StatCard icon="💰" label="Revenue" value={`₹${stats.revenue?.toLocaleString()}`} color="var(--green)" />
-            </div>
-
-            <h2 style={{ marginBottom: 16 }}>💸 LocalApp Commission Earnings</h2>
-            <div className="card card-body" style={{ marginBottom: 24 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
-                <span style={{ fontWeight: 700, fontSize: '1rem' }}>Total Commission Earned</span>
-                <span style={{ fontWeight: 900, fontSize: '1.6rem', color: 'var(--primary)' }}>₹{(stats.commission?.total || 0).toLocaleString()}</span>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
-                <div style={{ textAlign: 'center', padding: 14, background: 'var(--bg)', borderRadius: 10 }}>
-                  <div style={{ fontSize: '1.5rem', marginBottom: 4 }}>🍽️</div>
-                  <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--primary)' }}>₹{(stats.commission?.byType?.food || 0).toLocaleString()}</div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>Food (7%)</div>
-                </div>
-                <div style={{ textAlign: 'center', padding: 14, background: 'var(--bg)', borderRadius: 10 }}>
-                  <div style={{ fontSize: '1.5rem', marginBottom: 4 }}>🛒</div>
-                  <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--primary)' }}>₹{(stats.commission?.byType?.grocery || 0).toLocaleString()}</div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>Grocery (5%)</div>
-                </div>
-                <div style={{ textAlign: 'center', padding: 14, background: 'var(--bg)', borderRadius: 10 }}>
-                  <div style={{ fontSize: '1.5rem', marginBottom: 4 }}>🏍️</div>
-                  <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--primary)' }}>₹{(stats.commission?.byType?.ride || 0).toLocaleString()}</div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>Rides (6%)</div>
-                </div>
-              </div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: 14, textAlign: 'center' }}>
-                Launch phase rates — Zomato/Swiggy se kaafi kam (woh 20-30% lete hain)
-              </div>
             </div>
           </>
         )}

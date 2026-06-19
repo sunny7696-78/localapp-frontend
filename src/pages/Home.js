@@ -1,12 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
 
 const Home = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t } = useLanguage();
 
   return (
     <div className="page">
@@ -33,20 +31,20 @@ const Home = () => {
       <div className="service-cards">
         <div className="service-card" onClick={() => navigate('/grocery')}>
           <div className="service-icon">🛒</div>
-          <h3>{t('groceryService')}</h3>
-          <p>{t('groceryDesc')}</p>
+          <h3>Kirana Delivery</h3>
+          <p>Doraha ke shops se groceries 20 min mein</p>
           <div style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 700, marginTop: 6 }}>FREE delivery above ₹299</div>
         </div>
         <div className="service-card" onClick={() => navigate('/food')}>
           <div className="service-icon">🍔</div>
-          <h3>{t('foodService')}</h3>
-          <p>{t('foodDesc')}</p>
+          <h3>Food Delivery</h3>
+          <p>Doraha ke restaurants ka garam khana</p>
           <div style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 700, marginTop: 6 }}>30-45 min delivery</div>
         </div>
         <div className="service-card" onClick={() => navigate('/ride')}>
           <div className="service-icon">🏍️</div>
-          <h3>{t('rideService')}</h3>
-          <p>{t('rideDesc')}</p>
+          <h3>Bike / Auto Ride</h3>
+          <p>Doraha se Ludhiana, Sirhind, Fatehgarh</p>
           <div style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 700, marginTop: 6 }}>Starting ₹25</div>
         </div>
       </div>

@@ -77,9 +77,4 @@ export const adminAPI = {
   toggleUser: (id) => API.put(`/admin/users/${id}/toggle`),
 };
 
-export const locationAPI = {
-  update: (orderId, lat, lng) => API.put(`/location/order/${orderId}`, { lat, lng }),
-  get: (orderId) => API.get(`/location/order/${orderId}`),
-};
-
 export default API;

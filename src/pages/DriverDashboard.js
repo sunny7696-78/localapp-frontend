@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { orderAPI, rideAPI, authAPI, locationAPI } from '../utils/api';
+import { orderAPI, rideAPI, authAPI } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -19,29 +19,6 @@ const DriverDashboard = () => {
   const [orders, setOrders] = useState(DEMO_ORDERS);
   const [rides, setRides] = useState(DEMO_RIDES);
   const [myOrders, setMyOrders] = useState([]);
-  const [sharingLocation, setSharingLocation] = useState(false);
-
-  // Active orders ke liye GPS location automatically share karo har 8 sec mein
-  useEffect(() => {
-    const activeOrders = myOrders.filter(o => o.status === 'accepted' || o.status === 'preparing' || o.status === 'picked_up');
-    if (activeOrders.length === 0 || !navigator.geolocation) { setSharingLocation(false); return; }
-
-    setSharingLocation(true);
-    const sendLocation = () => {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          activeOrders.forEach(o => {
-            if (o.type !== 'ride') locationAPI.update(o._id, pos.coords.latitude, pos.coords.longitude).catch(() => {});
-          });
-        },
-        () => {},
-        { enableHighAccuracy: true }
-      );
-    };
-    sendLocation();
-    const interval = setInterval(sendLocation, 8000);
-    return () => clearInterval(interval);
-  }, [myOrders]);
   const [available, setAvailable] = useState(user?.isAvailable || false);
   const [earnings, setEarnings] = useState({ today: 650, week: 3200, total: 18500, trips: 12 });
 
@@ -111,11 +88,6 @@ const DriverDashboard = () => {
           <div style={{ fontSize: '0.78rem', marginTop: 4, color: available ? 'var(--green)' : 'var(--muted)', fontWeight: 700 }}>
             {available ? 'ONLINE' : 'OFFLINE'}
           </div>
-          {sharingLocation && (
-            <div style={{ fontSize: '0.7rem', marginTop: 4, color: 'var(--primary)', fontWeight: 600 }}>
-              📡 Location share ho rahi hai
-            </div>
-          )}
         </div>
       </div>
 
