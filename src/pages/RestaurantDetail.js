@@ -115,7 +115,7 @@ const RestaurantDetail = () => {
                       <div style={{ color: 'var(--primary)', fontWeight: 700 }}>₹{item.price}</div>
                     </div>
                     {qty === 0 ? (
-                      <button className="btn btn-outline btn-sm" onClick={() => { addToCart({ ...item, _id: item._id }, 'food', id); toast.success('Add ho gaya!'); }}>+ Add</button>
+                      <button className="btn btn-outline btn-sm" onClick={() => { addToCart({ ...item, _id: item._id }, 'food', id, { name: restaurant.name, phone: restaurant.phone }); toast.success('Add ho gaya!'); }}>+ Add</button>
                     ) : (
                       <div className="qty-control">
                         <button className="qty-btn" onClick={() => removeFromCart(item._id)}>−</button>

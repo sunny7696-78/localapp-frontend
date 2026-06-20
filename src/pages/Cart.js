@@ -8,12 +8,13 @@ import { useLanguage } from '../context/LanguageContext';
 import toast from 'react-hot-toast';
 
 const DORAHA_AREAS = DORAHA_LOCALITIES;
-const WA_NUMBER = '919876500002';
+// Grocery ke liye default support number (multiple shops se items aate hain, isliye fixed)
+const GROCERY_SUPPORT_NUMBER = '919876500002';
 const UPI_ID = 'goluv1817-1@okaxis';
 const UPI_PAYEE_NAME = 'Golu Verma';
 
 const Cart = () => {
-  const { cartItems, cartType, restaurantId, addToCart, removeFromCart, clearCart, total, itemCount } = useCart();
+  const { cartItems, cartType, restaurantId, vendorInfo, addToCart, removeFromCart, clearCart, total, itemCount } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t: tr } = useLanguage();
@@ -83,10 +84,17 @@ const Cart = () => {
 
   const handleWhatsApp = () => {
     if (!address.street) { toast.error(tr('enterAddressFirst')); return; }
+    // Food order ho toh restaurant ka apna number use karo, grocery ho toh support number
+    let targetNumber = GROCERY_SUPPORT_NUMBER;
+    if (cartType === 'food' && vendorInfo?.phone) {
+      let p = vendorInfo.phone.replace(/\D/g, '');
+      if (p.length === 10) p = '91' + p;
+      targetNumber = p;
+    }
     const itemList = cartItems.map(i => `• ${i.name} ×${i.qty} = ₹${i.price * i.qty}`).join('\n');
     const msg = `🏪 *LocalApp Doraha - Naya Order*\n\n` +
       `👤 Customer: ${user?.name}\n📞 Phone: ${user?.phone}\n\n` +
-      `📦 *${cartType === 'grocery' ? 'Kirana' : 'Food'} Order:*\n${itemList}\n\n` +
+      `📦 *${cartType === 'grocery' ? 'Kirana' : 'Food'} Order${vendorInfo?.name ? ' — ' + vendorInfo.name : ''}:*\n${itemList}\n\n` +
       `💰 Subtotal: ₹${total}\n🚚 Delivery: ₹${deliveryFee}\n` +
       (discount > 0 ? `🎟️ Discount: -₹${discount}\n` : '') +
       `✅ *Total: ₹${grandTotal}*\n\n` +
@@ -94,7 +102,7 @@ const Cart = () => {
       `💳 Payment: ${payment === 'cod' ? 'Cash on Delivery' : 'Online'}\n` +
       (notes ? `📝 Notes: ${notes}\n` : '') +
       `\nPlease confirm karo! 🙏`;
-    window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/${targetNumber}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   return (
