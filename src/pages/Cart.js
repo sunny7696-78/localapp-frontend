@@ -3,32 +3,39 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { orderAPI } from '../utils/api';
+import { DORAHA_LOCALITIES, APP_FULL_LOCATION } from '../constants/doraha';
+import { useLanguage } from '../context/LanguageContext';
 import toast from 'react-hot-toast';
 
-const DORAHA_AREAS = ['Doraha Mandi','Doraha Bus Stand','Doraha Grain Market','Doraha Civil Hospital','Sidhwan Bet','Raikot Road Doraha','Sahnewal','Mullanpur Dakha'];
+const DORAHA_AREAS = DORAHA_LOCALITIES;
 const WA_NUMBER = '919876500002';
+const UPI_ID = 'goluv1817-1@okaxis';
+const UPI_PAYEE_NAME = 'Golu Verma';
 
 const Cart = () => {
   const { cartItems, cartType, restaurantId, addToCart, removeFromCart, clearCart, total, itemCount } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [address, setAddress] = useState({ street: user?.address?.street || '', area: user?.address?.area || 'Doraha Mandi', city: 'Doraha, Ludhiana' });
+  const { t: tr } = useLanguage();
+  const [address, setAddress] = useState({ street: user?.address?.street || '', area: user?.address?.area || 'Doraha Mandi', city: APP_FULL_LOCATION });
   const [payment, setPayment] = useState('cod');
   const [promoCode, setPromoCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [promoApplied, setPromoApplied] = useState('');
   const [notes, setNotes] = useState('');
   const [placing, setPlacing] = useState(false);
+  const [showUpiModal, setShowUpiModal] = useState(false);
+  const [upiConfirming, setUpiConfirming] = useState(false);
 
   if (cartItems.length === 0) return (
     <div className="page">
       <div className="empty" style={{ paddingTop: 60 }}>
         <div style={{ fontSize: '5rem', marginBottom: 12 }}>🛒</div>
-        <h3>Cart Khali Hai!</h3>
-        <p style={{ color: 'var(--muted)', marginBottom: 24 }}>Kuch toh add karo — kirana ya khana!</p>
+        <h3>{tr('cartEmpty')}</h3>
+        <p style={{ color: 'var(--muted)', marginBottom: 24 }}>{tr('addSomething')}</p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-          <button className="btn btn-primary" onClick={() => navigate('/grocery')}>🛒 Kirana</button>
-          <button className="btn btn-secondary" onClick={() => navigate('/food')}>🍔 Khana</button>
+          <button className="btn btn-primary" onClick={() => navigate('/grocery')}>🛒 {tr('groceryService')}</button>
+          <button className="btn btn-secondary" onClick={() => navigate('/food')}>🍔 {tr('foodService')}</button>
         </div>
       </div>
     </div>
@@ -37,32 +44,45 @@ const Cart = () => {
   const deliveryFee = total >= 299 ? 0 : 20;
   const grandTotal = total - discount + deliveryFee;
 
+  const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${grandTotal}&cu=INR&tn=${encodeURIComponent('LocalApp Order')}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiLink)}`;
+
   const DEMO_PROMOS = { 'DORAHA50': 50, 'WELCOME50': 50, 'SAVE20': Math.round(total * 0.2), 'FIRST100': 100 };
 
   const applyPromo = () => {
-    if (!promoCode) { toast.error('Promo code daalo'); return; }
+    if (!promoCode) { toast.error(tr('enterPromoCode')); return; }
     const d = DEMO_PROMOS[promoCode.toUpperCase()];
-    if (d) { setDiscount(Math.min(d, total)); setPromoApplied(promoCode.toUpperCase()); toast.success('Promo apply ho gaya! -₹' + Math.min(d, total)); }
-    else toast.error('Galat promo code');
+    if (d) { setDiscount(Math.min(d, total)); setPromoApplied(promoCode.toUpperCase()); toast.success(tr('promoApplied') + ' -₹' + Math.min(d, total)); }
+    else toast.error(tr('invalidPromoCode'));
   };
 
-  const handlePlaceOrder = async () => {
-    if (!address.street) { toast.error('Apna address daalo'); return; }
+  const submitOrder = async (paymentStatus) => {
     setPlacing(true);
     try {
-      const res = await orderAPI.place({ type: cartType, items: cartItems.map(i => ({ itemId: i._id, name: i.name, price: i.price, quantity: i.qty })), deliveryAddress: address, restaurantId, paymentMethod: payment, notes, discount });
+      const res = await orderAPI.place({ type: cartType, items: cartItems.map(i => ({ itemId: i._id, name: i.name, price: i.price, quantity: i.qty })), deliveryAddress: address, restaurantId, paymentMethod: payment, paymentStatus, notes, discount });
       clearCart();
-      toast.success('🎉 Order place ho gaya! OTP: ' + res.data.otp);
+      toast.success('🎉 ' + tr('orderPlacedToast') + ' OTP: ' + res.data.otp);
       navigate('/track/' + res.data._id);
     } catch {
       clearCart();
-      toast.success('🎉 Order place ho gaya! (Demo mode)');
+      toast.success('🎉 ' + tr('orderPlacedToast') + ' (Demo)');
       navigate('/orders');
-    } finally { setPlacing(false); }
+    } finally { setPlacing(false); setShowUpiModal(false); setUpiConfirming(false); }
+  };
+
+  const handlePlaceOrder = async () => {
+    if (!address.street) { toast.error(tr('enterAddress')); return; }
+    if (payment === 'online') { setShowUpiModal(true); return; }
+    submitOrder('pending');
+  };
+
+  const confirmUpiPaid = () => {
+    setUpiConfirming(true);
+    setTimeout(() => submitOrder('paid'), 1200);
   };
 
   const handleWhatsApp = () => {
-    if (!address.street) { toast.error('Pehle address daalo'); return; }
+    if (!address.street) { toast.error(tr('enterAddressFirst')); return; }
     const itemList = cartItems.map(i => `• ${i.name} ×${i.qty} = ₹${i.price * i.qty}`).join('\n');
     const msg = `🏪 *LocalApp Doraha - Naya Order*\n\n` +
       `👤 Customer: ${user?.name}\n📞 Phone: ${user?.phone}\n\n` +
@@ -79,14 +99,14 @@ const Cart = () => {
 
   return (
     <div className="page">
-      <h1 className="page-title">🛍️ Tera Cart</h1>
+      <h1 className="page-title">🛍️ {tr('yourCart')}</h1>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20 }}>
         <div>
           {/* Items */}
           <div className="card card-body" style={{ marginBottom: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
-              <h3>{cartType === 'grocery' ? '🛒 Kirana Items' : '🍔 Food Items'} ({itemCount})</h3>
-              <button onClick={clearCart} style={{ background: 'none', border: 'none', color: 'var(--red)', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>🗑 Clear</button>
+              <h3>{cartType === 'grocery' ? '🛒 ' + tr('groceryItems') : '🍔 ' + tr('foodItems')} ({itemCount})</h3>
+              <button onClick={clearCart} style={{ background: 'none', border: 'none', color: 'var(--red)', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>🗑 {tr('clear')}</button>
             </div>
             {cartItems.map(item => (
               <div key={item._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
@@ -108,27 +128,27 @@ const Cart = () => {
 
           {/* Address */}
           <div className="card card-body" style={{ marginBottom: 16 }}>
-            <h3 style={{ marginBottom: 12 }}>📍 Delivery Address</h3>
+            <h3 style={{ marginBottom: 12 }}>📍 {tr('deliveryAddress')}</h3>
             <div className="form-group">
-              <label className="form-label">Ghar / Dukan Ka Address *</label>
+              <label className="form-label">{tr('houseAddress')} *</label>
               <input className="form-input" value={address.street} placeholder="H.No. 123, Gali No. 5"
                 onChange={e => setAddress({ ...address, street: e.target.value })} />
             </div>
             <div className="grid-2">
               <div className="form-group">
-                <label className="form-label">Area</label>
+                <label className="form-label">{tr('area')}</label>
                 <select className="form-input form-select" value={address.area} onChange={e => setAddress({ ...address, area: e.target.value })}>
                   {DORAHA_AREAS.map(a => <option key={a}>{a}</option>)}
                 </select>
               </div>
               <div className="form-group">
-                <label className="form-label">Shehar</label>
-                <input className="form-input" value="Doraha, Ludhiana" disabled />
+                <label className="form-label">{tr('city')}</label>
+                <input className="form-input" value={APP_FULL_LOCATION} disabled />
               </div>
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label">Special Instructions</label>
-              <input className="form-input" placeholder="e.g. Gate pe ring mat karo..." value={notes} onChange={e => setNotes(e.target.value)} />
+              <label className="form-label">{tr('specialInstructions')}</label>
+              <input className="form-input" placeholder={tr('specialInstructionsPlaceholder')} value={notes} onChange={e => setNotes(e.target.value)} />
             </div>
           </div>
         </div>
@@ -136,7 +156,7 @@ const Cart = () => {
         <div>
           {/* Promo */}
           <div className="card card-body" style={{ marginBottom: 14 }}>
-            <h3 style={{ marginBottom: 10 }}>🎟️ Promo Code</h3>
+            <h3 style={{ marginBottom: 10 }}>🎟️ {tr('promoCode')}</h3>
             {promoApplied ? (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#dcfce7', borderRadius: 8, padding: '10px 14px' }}>
                 <span style={{ fontWeight: 700, color: 'var(--green)' }}>✅ {promoApplied} — -₹{discount}</span>
@@ -147,7 +167,7 @@ const Cart = () => {
                 <div style={{ display: 'flex', gap: 8 }}>
                   <input className="form-input" placeholder="DORAHA50" value={promoCode}
                     onChange={e => setPromoCode(e.target.value.toUpperCase())} style={{ textTransform: 'uppercase' }} />
-                  <button className="btn btn-outline" onClick={applyPromo}>Apply</button>
+                  <button className="btn btn-outline" onClick={applyPromo}>{tr('apply')}</button>
                 </div>
                 <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
                   {['DORAHA50', 'WELCOME50', 'FIRST100'].map(c => (
@@ -163,8 +183,8 @@ const Cart = () => {
 
           {/* Payment */}
           <div className="card card-body" style={{ marginBottom: 14 }}>
-            <h3 style={{ marginBottom: 10 }}>💳 Payment</h3>
-            {[{ key: 'cod', label: '💵 Nakit (COD)', desc: 'Delivery pe paisa do' }, { key: 'online', label: '📱 Online (UPI)', desc: 'PhonePe, GPay, Paytm' }].map(p => (
+            <h3 style={{ marginBottom: 10 }}>💳 {tr('payment')}</h3>
+            {[{ key: 'cod', label: '💵 ' + tr('cod'), desc: tr('codDesc') }, { key: 'online', label: '📱 ' + tr('online'), desc: tr('onlineDesc') }].map(p => (
               <div key={p.key} onClick={() => setPayment(p.key)}
                 style={{ padding: 12, border: '2px solid ' + (payment === p.key ? 'var(--primary)' : 'var(--border)'), borderRadius: 10, marginBottom: 8, cursor: 'pointer', background: payment === p.key ? '#fff5ee' : 'white' }}>
                 <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{p.label}</div>
@@ -175,41 +195,69 @@ const Cart = () => {
 
           {/* Bill */}
           <div className="card card-body">
-            <h3 style={{ marginBottom: 12 }}>🧾 Bill Summary</h3>
+            <h3 style={{ marginBottom: 12 }}>🧾 {tr('billSummary')}</h3>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 7, fontSize: '0.9rem' }}>
-              <span style={{ color: 'var(--muted)' }}>Subtotal</span><span>₹{total}</span>
+              <span style={{ color: 'var(--muted)' }}>{tr('subtotal')}</span><span>₹{total}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 7, fontSize: '0.9rem' }}>
-              <span style={{ color: 'var(--muted)' }}>Delivery</span>
+              <span style={{ color: 'var(--muted)' }}>{tr('delivery')}</span>
               <span style={{ color: deliveryFee === 0 ? 'var(--green)' : 'var(--text)', fontWeight: deliveryFee === 0 ? 700 : 400 }}>
-                {deliveryFee === 0 ? 'FREE 🎉' : '₹' + deliveryFee}
+                {deliveryFee === 0 ? tr('free') + ' 🎉' : '₹' + deliveryFee}
               </span>
             </div>
             {discount > 0 && (
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 7, fontSize: '0.9rem' }}>
-                <span style={{ color: 'var(--muted)' }}>Discount</span><span style={{ color: 'var(--green)', fontWeight: 700 }}>-₹{discount}</span>
+                <span style={{ color: 'var(--muted)' }}>{tr('discount')}</span><span style={{ color: 'var(--green)', fontWeight: 700 }}>-₹{discount}</span>
               </div>
             )}
             {total < 299 && (
               <div style={{ fontSize: '0.75rem', color: 'var(--primary)', textAlign: 'center', background: '#fff5ee', padding: '6px', borderRadius: 6, marginBottom: 8 }}>
-                ₹{299 - total} aur add karo — FREE delivery paao!
+                ₹{299 - total} {tr('addMoreForFree')}
               </div>
             )}
             <div style={{ borderTop: '2px solid var(--border)', paddingTop: 10, display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.1rem' }}>
-              <span>Total</span><span style={{ color: 'var(--primary)' }}>₹{grandTotal}</span>
+              <span>{tr('total')}</span><span style={{ color: 'var(--primary)' }}>₹{grandTotal}</span>
             </div>
 
             <button className="btn btn-primary btn-block" style={{ marginTop: 14, padding: 14 }} onClick={handlePlaceOrder} disabled={placing}>
-              {placing ? '⏳ Order ho raha...' : `✅ Order Karo — ₹${grandTotal}`}
+              {placing ? '⏳ ' + tr('placingOrder') : `✅ ${tr('placeOrder')} — ₹${grandTotal}`}
             </button>
 
             <button onClick={handleWhatsApp}
               style={{ width: '100%', padding: 12, borderRadius: 10, border: 'none', background: '#25D366', color: 'white', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 10 }}>
-              📱 WhatsApp pe Order Karo
+              📱 {tr('orderViaWhatsApp')}
             </button>
           </div>
         </div>
       </div>
+
+      {showUpiModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
+          <div className="card" style={{ background: 'white', borderRadius: 16, padding: 28, width: '90%', maxWidth: 380, textAlign: 'center' }}>
+            <h3 style={{ marginBottom: 4 }}>📱 {tr('payViaUpi')}</h3>
+            <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: 18 }}>{tr('scanWithUpiApp')}</p>
+
+            <div style={{ background: '#fafafa', borderRadius: 12, padding: 16, marginBottom: 16, display: 'inline-block' }}>
+              <img src={qrUrl} alt="UPI QR Code" width={220} height={220} style={{ display: 'block' }} />
+            </div>
+
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary)', marginBottom: 4 }}>₹{grandTotal}</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--muted)', marginBottom: 18 }}>UPI ID: {UPI_ID}</div>
+
+            <a href={upiLink} style={{ display: 'block', textDecoration: 'none', marginBottom: 10 }}>
+              <button className="btn btn-outline btn-block">{tr('openUpiApp')}</button>
+            </a>
+
+            <button className="btn btn-primary btn-block" onClick={confirmUpiPaid} disabled={upiConfirming}>
+              {upiConfirming ? tr('confirming') : '✅ ' + tr('iHavePaid')}
+            </button>
+
+            <button onClick={() => setShowUpiModal(false)} style={{ background: 'none', border: 'none', color: 'var(--muted)', marginTop: 14, cursor: 'pointer', fontSize: '0.85rem' }}>
+              {tr('cancel')}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
