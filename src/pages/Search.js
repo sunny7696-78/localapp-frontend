@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productAPI, restaurantAPI } from '../utils/api';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import toast from 'react-hot-toast';
 
 const TRENDING = ['Amul Milk', 'Dal Makhani', 'Momos', 'Burger', 'Doraha Dhaba', 'Paneer', 'Lassi', 'Samosa'];
@@ -14,6 +15,7 @@ const Search = () => {
   const [priceMax, setPriceMax] = useState(500);
   const { addToCart } = useCart();
   const navigate = useNavigate();
+  const { t: tr } = useLanguage();
 
   const doSearch = async (q) => {
     if (!q.trim()) { setResults({ products: [], restaurants: [] }); return; }
@@ -45,11 +47,11 @@ const Search = () => {
 
   return (
     <div className="page">
-      <h1 className="page-title">🔍 Search</h1>
+      <h1 className="page-title">🔍 {tr('search')}</h1>
 
       {/* Search Bar */}
       <div style={{ position: 'relative', marginBottom: 20 }}>
-        <input className="form-input" placeholder="Kuch bhi dhundho — product, restaurant, khana..." value={query}
+        <input className="form-input" placeholder={tr('searchAnything')} value={query}
           onChange={e => handleSearch(e.target.value)} autoFocus
           style={{ paddingLeft: 44, background: 'white', fontSize: '1rem' }} />
         <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: '1.1rem' }}>🔍</span>
@@ -60,14 +62,14 @@ const Search = () => {
       {/* No query — show trending */}
       {!query && (
         <>
-          <h3 style={{ marginBottom: 12 }}>🔥 Trending in Doraha</h3>
+          <h3 style={{ marginBottom: 12 }}>🔥 {tr('trendingInDoraha')}</h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
             {TRENDING.map(t => (
               <button key={t} onClick={() => handleSearch(t)}
                 style={{ padding: '8px 16px', borderRadius: 20, border: '1px solid var(--border)', background: 'white', cursor: 'pointer', fontWeight: 600, fontSize: '0.88rem', boxShadow: 'var(--shadow)' }}>{t}</button>
             ))}
           </div>
-          <h3 style={{ marginBottom: 12 }}>📂 Browse by Category</h3>
+          <h3 style={{ marginBottom: 12 }}>📂 {tr('browseByCategory')}</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
             {[{ icon: '🥦', label: 'Sabzi', cat: 'vegetables' }, { icon: '🥛', label: 'Dairy', cat: 'dairy' }, { icon: '🌾', label: 'Anaj', cat: 'grains' }, { icon: '🍿', label: 'Snacks', cat: 'snacks' },
               { icon: '☕', label: 'Drinks', cat: 'beverages' }, { icon: '🍎', label: 'Fal', cat: 'fruits' }, { icon: '🧹', label: 'Ghar', cat: 'household' }, { icon: '🍔', label: 'Food', cat: 'food' }
@@ -90,7 +92,7 @@ const Search = () => {
             {['all', 'grocery', 'food'].map(f => (
               <button key={f} onClick={() => setFilter(f)}
                 style={{ padding: '6px 14px', borderRadius: 20, border: 'none', cursor: 'pointer', background: filter === f ? 'var(--primary)' : 'white', color: filter === f ? 'white' : 'var(--text)', fontWeight: 600, fontSize: '0.83rem', boxShadow: 'var(--shadow)' }}>
-                {f === 'all' ? 'Sab' : f === 'grocery' ? '🛒 Kirana' : '🍔 Food'}
+                {f === 'all' ? tr('all') : f === 'grocery' ? '🛒 ' + tr('groceryService') : '🍔 ' + tr('foodService')}
               </button>
             ))}
             <div style={{ marginLeft: 'auto', fontSize: '0.82rem', color: 'var(--muted)' }}>
@@ -104,7 +106,7 @@ const Search = () => {
           {/* Products */}
           {(filter === 'all' || filter === 'grocery') && filteredProducts.length > 0 && (
             <>
-              <h3 style={{ marginBottom: 12 }}>🛒 Products ({filteredProducts.length})</h3>
+              <h3 style={{ marginBottom: 12 }}>🛒 {tr('groceryService')} ({filteredProducts.length})</h3>
               <div className="grid-4" style={{ marginBottom: 20 }}>
                 {filteredProducts.map(p => (
                   <div key={p._id} className="card">
@@ -115,7 +117,7 @@ const Search = () => {
                       <div style={{ fontWeight: 600, fontSize: '0.88rem', marginBottom: 6 }}>{p.name}</div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ color: 'var(--primary)', fontWeight: 700 }}>₹{p.price}</span>
-                        <button className="btn btn-primary btn-sm" onClick={() => { addToCart(p, 'grocery'); toast.success('Added!'); }}>+ Add</button>
+                        <button className="btn btn-primary btn-sm" onClick={() => { addToCart(p, 'grocery'); toast.success('Added!'); }}>+ {tr('add')}</button>
                       </div>
                     </div>
                   </div>
@@ -127,7 +129,7 @@ const Search = () => {
           {/* Restaurants */}
           {(filter === 'all' || filter === 'food') && results.restaurants.length > 0 && (
             <>
-              <h3 style={{ marginBottom: 12 }}>🍔 Restaurants ({results.restaurants.length})</h3>
+              <h3 style={{ marginBottom: 12 }}>🍔 {tr('foodService')} ({results.restaurants.length})</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {results.restaurants.map(r => (
                   <div key={r._id} className="card card-body" style={{ cursor: 'pointer', display: 'flex', gap: 16, alignItems: 'center' }} onClick={() => navigate('/food/' + r._id)}>
@@ -150,8 +152,8 @@ const Search = () => {
           {!loading && filteredProducts.length === 0 && results.restaurants.length === 0 && (
             <div className="empty">
               <div className="empty-icon">🔍</div>
-              <h3>"{query}" nahi mila</h3>
-              <p>Dusra search try karo</p>
+              <h3>"{query}" {tr('noRestaurantFound')}</h3>
+              <p>{tr('tryDifferentSearch')}</p>
             </div>
           )}
         </>

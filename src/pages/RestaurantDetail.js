@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { restaurantAPI } from '../utils/api';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import toast from 'react-hot-toast';
 
 const DEMO_RESTAURANTS = {
@@ -52,6 +53,7 @@ const RestaurantDetail = () => {
   const [restaurant, setRestaurant] = useState(null);
   const [vegOnly, setVegOnly] = useState(false);
   const { cartItems, addToCart, removeFromCart, itemCount, total } = useCart();
+  const { t: tr } = useLanguage();
 
   useEffect(() => {
     restaurantAPI.getOne(id).then(res => setRestaurant(res.data))
@@ -65,7 +67,7 @@ const RestaurantDetail = () => {
 
   return (
     <div className="page">
-      <button onClick={() => navigate('/food')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer', marginBottom: 16, fontSize: '0.9rem' }}>← Wapas</button>
+      <button onClick={() => navigate('/food')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer', marginBottom: 16, fontSize: '0.9rem' }}>← {tr('back')}</button>
 
       {/* Restaurant Header */}
       <div className="card" style={{ marginBottom: 20 }}>
@@ -90,7 +92,7 @@ const RestaurantDetail = () => {
               style={{ width: 44, height: 24, borderRadius: 12, background: vegOnly ? 'var(--green)' : 'var(--border)', position: 'relative', cursor: 'pointer', transition: 'background 0.3s' }}>
               <div style={{ position: 'absolute', top: 3, left: vegOnly ? 22 : 3, width: 18, height: 18, borderRadius: '50%', background: 'white', transition: 'left 0.3s' }} />
             </div>
-            <span style={{ fontWeight: 600, fontSize: '0.88rem', color: vegOnly ? 'var(--green)' : 'var(--muted)' }}>Sirf Veg</span>
+            <span style={{ fontWeight: 600, fontSize: '0.88rem', color: vegOnly ? 'var(--green)' : 'var(--muted)' }}>{tr('vegOnly')}</span>
           </div>
         </div>
       </div>
@@ -115,7 +117,7 @@ const RestaurantDetail = () => {
                       <div style={{ color: 'var(--primary)', fontWeight: 700 }}>₹{item.price}</div>
                     </div>
                     {qty === 0 ? (
-                      <button className="btn btn-outline btn-sm" onClick={() => { addToCart({ ...item, _id: item._id }, 'food', id, { name: restaurant.name, phone: restaurant.phone }); toast.success('Add ho gaya!'); }}>+ Add</button>
+                      <button className="btn btn-outline btn-sm" onClick={() => { addToCart({ ...item, _id: item._id }, 'food', id, { name: restaurant.name, phone: restaurant.phone }); toast.success('Add ho gaya!'); }}>+ {tr('add')}</button>
                     ) : (
                       <div className="qty-control">
                         <button className="qty-btn" onClick={() => removeFromCart(item._id)}>−</button>
@@ -134,7 +136,7 @@ const RestaurantDetail = () => {
       {itemCount > 0 && (
         <div className="cart-float" onClick={() => navigate('/cart')}>
           <span>🛍️ {itemCount} items</span>
-          <span style={{ fontWeight: 800, color: 'var(--primary)' }}>₹{total} → Cart Dekho</span>
+          <span style={{ fontWeight: 800, color: 'var(--primary)' }}>₹{total} → {tr('viewCart')}</span>
         </div>
       )}
     </div>
