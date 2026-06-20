@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { LanguageProvider } from './context/LanguageContext';
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -105,10 +106,10 @@ const AppRoutes = () => {
 
 const App = () => (
   <BrowserRouter>
-    <AuthProvider><CartProvider>
+    <LanguageProvider><AuthProvider><CartProvider>
       <Toaster position="top-center" toastOptions={{ duration: 2500, style: { borderRadius: '10px', fontWeight: 600, fontSize: '0.9rem' } }} />
       <AppRoutes />
-    </CartProvider></AuthProvider>
+    </CartProvider></AuthProvider></LanguageProvider>
   </BrowserRouter>
 );
 
