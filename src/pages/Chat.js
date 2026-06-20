@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
@@ -7,6 +8,7 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const Chat = () => {
   const { user } = useAuth();
+  const { t: tr } = useLanguage();
   const { roomId } = useParams();
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
@@ -61,7 +63,7 @@ const Chat = () => {
   const timeStr = (date) => new Date(date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
   const isMe = (msg) => msg.senderName === user?.name || msg.sender === user?._id;
 
-  const QUICK_REPLIES = ['Theek hai', 'Main aa raha hoon', 'Kitna time lagega?', 'Order kahan hai?', 'Shukriya!'];
+  const QUICK_REPLIES = [tr('qrOk'), tr('qrComing'), tr('qrHowLong'), tr('qrWhereIsOrder'), tr('qrThanks')];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)', maxWidth: 600, margin: '0 auto' }}>
@@ -72,8 +74,8 @@ const Chat = () => {
           {user?.role === 'driver' ? '👤' : '🏍️'}
         </div>
         <div>
-          <div style={{ fontWeight: 700 }}>{user?.role === 'driver' ? 'Customer' : 'Delivery Partner'}</div>
-          <div style={{ fontSize: '0.75rem', color: '#4ade80' }}>● Online</div>
+          <div style={{ fontWeight: 700 }}>{user?.role === 'driver' ? tr('customer') : tr('deliveryPartner')}</div>
+          <div style={{ fontSize: '0.75rem', color: '#4ade80' }}>● {tr('onlineStatus')}</div>
         </div>
       </div>
 
@@ -108,7 +110,7 @@ const Chat = () => {
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
-          placeholder="Message likhо..."
+          placeholder={tr('typeMessage')}
           style={{ flex: 1, padding: '10px 16px', border: '2px solid var(--border)', borderRadius: 25, fontSize: '0.9rem', outline: 'none' }}
           onFocus={e => e.target.style.borderColor = 'var(--primary)'}
           onBlur={e => e.target.style.borderColor = 'var(--border)'}
