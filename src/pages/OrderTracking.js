@@ -14,27 +14,17 @@ const OrderTracking = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
+  const [error, setError] = useState(false);
   const [polling, setPolling] = useState(true);
 
   const fetchOrder = async () => {
     try {
       const res = await orderAPI.getOne(id);
       setOrder(res.data);
+      setError(false);
       if (['delivered', 'cancelled'].includes(res.data.status)) setPolling(false);
     } catch {
-      // demo mode
-      setOrder({
-        _id: id,
-        type: 'grocery',
-        status: 'preparing',
-        total: 350,
-        estimatedTime: '15-20 min',
-        otp: '7432',
-        deliveryAddress: { street: 'H.No 45', area: 'Civil Lines', city: 'Ludhiana' },
-        items: [{ name: 'Amul Milk', quantity: 2, price: 66 }, { name: 'Tomatoes', quantity: 1, price: 40 }],
-        driver: { name: 'Harpreet Singh', phone: '9876543210', vehicle: { type: 'bike', number: 'PB10AB1234' } },
-        createdAt: new Date().toISOString(),
-      });
+      setError(true);
       setPolling(false);
     }
   };
@@ -45,6 +35,15 @@ const OrderTracking = () => {
     if (polling) interval = setInterval(fetchOrder, 10000); // poll every 10s
     return () => clearInterval(interval);
   }, [id, polling]);
+
+  if (error) return (
+    <div className="page" style={{ maxWidth: 480, margin: '0 auto', textAlign: 'center', paddingTop: 60 }}>
+      <div style={{ fontSize: '4rem', marginBottom: 16 }}>📦</div>
+      <h3 style={{ marginBottom: 8 }}>Order nahi mila</h3>
+      <p style={{ color: 'var(--muted)', marginBottom: 24 }}>Ye order exist nahi karta ya delete ho gaya hai.</p>
+      <button className="btn btn-primary" onClick={() => navigate('/orders')}>📦 Mere Orders Dekho</button>
+    </div>
+  );
 
   if (!order) return <div className="loader"><div className="spinner" /></div>;
 
