@@ -20,6 +20,7 @@ import Orders from './pages/Orders';
 import OrderTracking from './pages/OrderTracking';
 import RideMap from './pages/RideMap';
 import Profile from './pages/Profile';
+import Help from './pages/Help';
 import Admin from './pages/Admin';
 import DriverDashboard from './pages/DriverDashboard';
 import VendorDashboard from './pages/VendorDashboard';
@@ -86,6 +87,7 @@ const AppRoutes = () => {
         <Route path="/schedule" element={<PrivateRoute><ScheduleOrder /></PrivateRoute>} />
         <Route path="/chat/:roomId" element={<PrivateRoute><Chat /></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        <Route path="/help" element={<PrivateRoute><Help /></PrivateRoute>} />
         <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
         <Route path="/wallet" element={<PrivateRoute><Wallet /></PrivateRoute>} />
         <Route path="/addresses" element={<PrivateRoute><SavedAddresses /></PrivateRoute>} />
